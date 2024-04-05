@@ -30,13 +30,12 @@ researcher = Agent(
   verbose=True,
   memory=True,
   backstory=(
-    "Driven by curiosity, you're at the forefront of"
-    "innovation, eager to explore and share knowledge that could change"
-    "the world."
+    "You are a world renowned senior science and technology researcher respected for the quality and reliability of your research."
+    "You are also an excellent collaborator often working with a team of writers that create engaging and informative articles based on your research."
   ),
   tools=[search_tool],
   llm=llm,
-  allow_delegation=True
+  allow_delegation=False
 )
 
 # Create a writer agent to refine and simplify research material. Enabling memory (to remember past interactions)
@@ -63,11 +62,13 @@ research_task = Task(
     "Identify the next big trend in {topic}."
     "Focus on identifying pros and cons and the overall narrative."
     "Your final report should clearly articulate the key points"
-    "its market opportunities, and potential risks."
+    "its market opportunities and potential risks."
   ),
-  expected_output='A comprehensive 3 paragraph report on the latest {topic} trends.',
+  expected_output="A comprehensive 3 paragraph report on the latest {topic} trends.",
   tools=[search_tool],
   agent=researcher,
+  async_execution=False,
+  output_file='research-note.txt'
 )
 
 # Create a new task to perform the writing. We associate the task with the writer agent
@@ -77,9 +78,9 @@ write_task = Task(
   description=(
     "Compose an insightful article on {topic}."
     "Focus on the latest trends and how it's impacting the industry."
-    "This article should be easy to understand, engaging, and positive."
+    "This article should be easy to understand, engaging and positive."
   ),
-  expected_output='A 4 paragraph article on {topic} advancements formatted as markdown.',
+  expected_output="A 4 paragraph article on {topic} advancements formatted as markdown.",
   tools=[search_tool],
   agent=writer,
   async_execution=False,
@@ -92,7 +93,12 @@ write_task = Task(
 crew = Crew(
   agents=[researcher, writer],
   tasks=[research_task, write_task],
-  process=Process.sequential  # Optional: Sequential task execution is default
+  process=Process.sequential,  # Optional: Sequential task execution is default
+  memory=True,
+  verbose=9,
+  cache=True,
+  max_rpm=10,
+  share_crew=False
 )
 
 
