@@ -1,2 +1,3 @@
-crewai[tools]
+crewai==0.22.5
+crewai-tools
 duckduckgo-search
